@@ -2,6 +2,8 @@
 
 
 ====SETUP for VISUAL STUDIO 2017=========
+
+
 Making it Run with CHAI-3D
 1. Copy DBManager.cpp / DBManager.h to the project folder from https://github.com/sandeepzgk/sqlcpp
 2. Right Click the application > Click on Add > Add Existing Items and select the DBManager.cpp and DBManager.h files
