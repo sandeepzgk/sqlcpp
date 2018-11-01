@@ -37,6 +37,8 @@ set it , for eg:"c:\sqlite"
 
 A working example of this code is available at https://github.com/sandeepzgk/chai3d-experiments/tree/SQLIntegration_Test SQLIntegration_Test as a part of the chai3d-experiements repository.
 
+Instructions adapted from : https://cppcodetips.wordpress.com/tag/including-sqlite-with-visual-studio/
+
 
 ### ADDITIONAL IMPORTANT NOTES ###
 * Ensure that you ***DO NOT*** instantiate more than 1 instance of DBManager. This does not have a singleton pattern and WILL cause some issues.
