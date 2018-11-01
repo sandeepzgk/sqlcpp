@@ -1,10 +1,10 @@
 # sqlcpp
 
 
-##SETUP for VISUAL STUDIO 2017
+## SETUP for VISUAL STUDIO 2017 ##
 
 
-###Making it Run with CHAI-3D
+### Making it Run with CHAI-3D ###
 1. Copy DBManager.cpp / DBManager.h to the project folder from https://github.com/sandeepzgk/sqlcpp
 2. Right Click the application > Click on Add > Add Existing Items and select the DBManager.cpp and DBManager.h files
 3. Download SQLITE DLL and def from the link https://sqlite.org/download.html "Precompiled Binaries for Windows" get both x86 and win64 versions.
@@ -27,7 +27,7 @@ Configuration Properties–>Linker–>General–>Additional Library Directories
 set it , for eg:"c:\sqlite"
 
 
-###HOW TO USE THIS
+### HOW TO USE THIS ###
 1. In your main file, include the header file #include "DBManager.h"
 2. Create an instance of DBManager by adding 	DBManager dbmanager;
 3. There are two writes possible with this class,
@@ -38,7 +38,7 @@ set it , for eg:"c:\sqlite"
 A working example of this code is available at https://github.com/sandeepzgk/chai3d-experiments/tree/SQLIntegration_Test SQLIntegration_Test as a part of the chai3d-experiements repository.
 
 
-###ADDITIONAL IMPORTANT NOTES
+### ADDITIONAL IMPORTANT NOTES ###
 * Ensure that you ***DO NOT*** instantiate more than 1 instance of DBManager. This does not have a singleton pattern and WILL cause some issues.
 * The filename for the db is test.db which can be changed to anything else
 * the initial startup of the code is delayed by two seconds to ensure that the db is ready with tables and everything is set to work
@@ -46,14 +46,13 @@ A working example of this code is available at https://github.com/sandeepzgk/cha
 * the destructor will sleep the main thread to ensure that all data has been written to the tables
 * the write call should immediately return control to the main thread, as it has already spawn a write thread to the DB which will kill itself after execution.
 
-###EXPLORING THE DB
-** Use https://sqlitebrowser.org/ this is a pretty good tool to explore the sqlite database 
-** You will see two tables MAINDATA and SRDATA tables that contains the data entered by you.
+### EXPLORING THE DB ###
+* Use https://sqlitebrowser.org/ this is a pretty good tool to explore the sqlite database 
+* You will see two tables MAINDATA and SRDATA tables that contains the data entered by you.
 
 
-##SETUP for UBUNTU
+## SETUP for UBUNTU ##
 * sudo apt-get install libsqlite3-dev
 * sudo apt-get install sqlite3
 * use cmake to build the makefile and make that should get you the executable. 
 https://github.com/sandeepzgk/sqlcpp 
-
