@@ -15,6 +15,7 @@ DBManager::DBManager()
 	connect();
 	createSRTable();
 	createDataTable();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 DBManager::~DBManager()
@@ -36,6 +37,7 @@ int DBManager::connect()
 		fprintf(stderr, "Opened database successfully\n");
 		return (0);
 	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 void DBManager::createSRTable()
@@ -46,10 +48,10 @@ void DBManager::createSRTable()
 				`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	\
 				`PID`	TEXT NOT NULL,										\
 				`LOC`	INTEGER NOT NULL,									\
-				`CAL_VAL`	INTEGER NOT NULL								\
-				);";
+				`CAL_VAL`	INTEGER NOT NULL,								\
+				`Timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP				);";
 	detachableExecutor(sql,false);
-
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 void DBManager::sqlExecutor(char *sql,bool usedNew)
@@ -85,10 +87,12 @@ void DBManager::createDataTable()
 				`TEST_SP`	INTEGER NOT NULL,								\
 				`S_TOUCHED`	INTEGER NOT NULL,								\
 				`FORCES`	TEXT NOT NULL,									\
-				`CONFIRM_PRESSED`	TEXT NOT NULL							\
+				`CONFIRM_PRESSED`	TEXT NOT NULL,							\
+ 				`Timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP				\
 				);";
 
 	detachableExecutor(sql,false);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 
