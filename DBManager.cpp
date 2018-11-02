@@ -4,12 +4,12 @@
 
 #include "DBManager.h"
 
-DBManager* DBManager::pSingleton= NULL;
+DBManager* DBManager::pSingleton= nullptr;
 
 
 DBManager* DBManager::GetInstance()
 {
-	if (pSingleton== NULL) {
+	if (pSingleton== nullptr) {
 		pSingleton = new DBManager();
 	}
 	return pSingleton;
@@ -28,10 +28,9 @@ DBManager::DBManager()
 
 bool DBManager::isBusy()
 {
-	if (sql_executionQueue.size() > 0 || sqlite3_close(db)==SQLITE_BUSY)
+	if (!sql_executionQueue.empty())
 		return true;
-	else
-		return false;
+	else return sqlite3_close(db) == SQLITE_BUSY;
 
 }
 
@@ -66,16 +65,16 @@ void DBManager::createSRTable()
 
 void DBManager::sqlExecutor()
 {
-	while(1)
+	while(true)
 	{
-		if (sql_executionQueue.size() == 0)
+		if (sql_executionQueue.empty())
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		else
 		{
 			std::string sqlString = sql_executionQueue.front();
-			char *csql = new char[sqlString.length() + 1];
+			auto *csql = new char[sqlString.length() + 1];
 			strcpy(csql, sqlString.c_str());
-			rc = sqlite3_exec(db, csql, callback, 0, &zErrMsg);
+			rc = sqlite3_exec(db, csql, callback, nullptr, &zErrMsg);
 
 			if (rc != SQLITE_OK)
 			{

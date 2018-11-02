@@ -8,7 +8,7 @@
 #include <sqlite3.h>
 #include <iostream>
 #include <queue>
-#include <math.h>
+#include <cmath>
 #include <cstring>
 #include <thread>
 
@@ -19,7 +19,7 @@ private:
 	sqlite3 *db;
 	const char* dbName = "test.db";
 	int rc;
-	char *zErrMsg = 0;
+	char *zErrMsg = nullptr;
 	int connect();
 	void createSRTable();
 	void createDataTable();
