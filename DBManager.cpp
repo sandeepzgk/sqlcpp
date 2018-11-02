@@ -9,6 +9,17 @@
 #include <cstring>
 #include <thread>
 
+DBManager* DBManager::pSingleton= NULL;
+
+
+DBManager* DBManager::GetInstance()
+{
+	if (pSingleton== NULL) {
+		pSingleton = new DBManager();
+	}
+	return pSingleton;
+}
+
 DBManager::DBManager()
 {
 	std::cout << "Constructor Invoked" << std::endl;
@@ -16,13 +27,19 @@ DBManager::DBManager()
 	createSRTable();
 	createDataTable();
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
+	std::thread executorThread(&DBManager::sqlExecutor,this);
+	executorThread.detach();
 }
 
-DBManager::~DBManager()
+bool DBManager::isBusy()
 {
-	std::cout << "Destructor Invoked" << std::endl;
-	disconnect();
+	if (sql_executionQueue.size() > 0 || sqlite3_close(db)==SQLITE_BUSY)
+		return true;
+	else
+		return false;
+
 }
+
 
 int DBManager::connect()
 {
@@ -50,30 +67,34 @@ void DBManager::createSRTable()
 				`LOC`	INTEGER NOT NULL,									\
 				`CAL_VAL`	INTEGER NOT NULL,								\
 				`Timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP				);";
-	detachableExecutor(sql,false);
+	queueSQL(sql, false);
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
-void DBManager::sqlExecutor(char *sql,bool usedNew)
+void DBManager::sqlExecutor()
 {
 	/* Execute SQL statement */
-	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
-	rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+	//
+	while(1)
+	{
+		if (sql_executionQueue.size() == 0)
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		else
+		{
+			char *sql = sql_executionQueue.front();
+			rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
 
-	if (rc != SQLITE_OK)
-	{
-		fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		sqlite3_free(zErrMsg);
+			if (rc != SQLITE_OK)
+			{
+				fprintf(stderr, "SQL error: %s\n", zErrMsg);
+				sqlite3_free(zErrMsg);
+			} else
+			{
+				fprintf(stdout, "SQL Executed Successfully\n");
+			}
+			sql_executionQueue.pop();
+		}
 	}
-	else
-	{
-		fprintf(stdout, "SQL Executed Successfully\n");
-	}
-	if(usedNew == true)
-	{
-		delete[] sql;
-	}
-	threadExecuting--;
 }
 
 void DBManager::createDataTable()
@@ -91,7 +112,7 @@ void DBManager::createDataTable()
  				`Timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP				\
 				);";
 
-	detachableExecutor(sql,false);
+	queueSQL(sql, false);
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
@@ -108,16 +129,6 @@ int DBManager::callback(void *NotUsed, int argc, char **argv, char **azColName)
 	return 0;
 }
 
-int DBManager::disconnect()
-{
-	while(threadExecuting > 0 || sqlite3_close(db)==SQLITE_BUSY)
-	{
-		fprintf(stdout, "Waiting for 1 second for exit\n");
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	}
-	return 0;
-
-}
 
 void DBManager::writeMainData(float elapsed, char *pid, char *condition, int test_sp, int s_touched, char *forces, char *confirm_press)
 {
@@ -137,7 +148,7 @@ void DBManager::writeMainData(float elapsed, char *pid, char *condition, int tes
 						sql.append("'");	sql.append(confirm_press); 		sql.append("');");
 	char *csql = new char[sql.length() + 1];
 	strcpy(csql, sql.c_str());
-	detachableExecutor(csql,true);
+	queueSQL(csql, true);
 
 }
 
@@ -154,13 +165,11 @@ void DBManager::writeSRData(char *pid, int location, int cal_val)
 	sql.append("");	sql.append(cal_valBuffer); 			sql.append(");");
 	char *csql = new char[sql.length() + 1];
 	strcpy(csql, sql.c_str());
-	detachableExecutor(csql,true);
+	queueSQL(csql, true);
 
 }
 
-void DBManager::detachableExecutor(char *sql,bool usedNew)
+void DBManager::queueSQL(char *sql, bool usedNew)
 {
-	std::thread t1(&DBManager::sqlExecutor,this,sql,usedNew);
-	threadExecuting++;
-	t1.detach();
+	sql_executionQueue.push(sql);
 }
