@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <iostream>
 #include <string>
+#include <queue>
 
 class DBManager
 {
@@ -23,9 +24,13 @@ private:
 	void sqlExecutor(char *sql,bool usedNew);
 	void detachableExecutor(char *sql,bool usedNew);
 	int threadExecuting = 0;
-public:
+	std::queue<char*> sql_executionQueue;
 	DBManager();
+	static DBManager* pSingleton;		// singleton instance
+
+public:
 	~DBManager();
+	static DBManager* GetInstance();
 	void writeMainData(float elapsed, char *pid, char *condition, int test_sp, int s_touched, char *forces, char *confirm_press);
 	void writeSRData(char *pid, int location, int cal_val);
 

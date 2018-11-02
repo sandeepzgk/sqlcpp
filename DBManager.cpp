@@ -9,6 +9,17 @@
 #include <cstring>
 #include <thread>
 
+DBManager* DBManager::pSingleton= NULL;
+
+
+DBManager* DBManager::GetInstance()
+{
+	if (pSingleton== NULL) {
+		pSingleton = new DBManager();
+	}
+	return pSingleton;
+}
+
 DBManager::DBManager()
 {
 	std::cout << "Constructor Invoked" << std::endl;
