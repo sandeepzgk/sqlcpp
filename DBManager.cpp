@@ -26,7 +26,6 @@ DBManager::DBManager()
 	connect();
 	createSRTable();
 	createDataTable();
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 	std::thread executorThread(&DBManager::sqlExecutor,this);
 	executorThread.detach();
 }
@@ -54,7 +53,6 @@ int DBManager::connect()
 		fprintf(stderr, "Opened database successfully\n");
 		return (0);
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 void DBManager::createSRTable()
@@ -68,7 +66,6 @@ void DBManager::createSRTable()
 				`CAL_VAL`	INTEGER NOT NULL,								\
 				`Timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP				);";
 	queueSQL(sql, false);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 void DBManager::sqlExecutor()
@@ -113,7 +110,6 @@ void DBManager::createDataTable()
 				);";
 
 	queueSQL(sql, false);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Ensure that Table is created successfully
 }
 
 
