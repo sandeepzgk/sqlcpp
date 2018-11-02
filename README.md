@@ -29,11 +29,12 @@ set it , for eg:"c:\sqlite"
 
 ### HOW TO USE THIS ###
 1. In your main file, include the header file #include "DBManager.h"
-2. Create an instance of DBManager by adding 	DBManager dbmanager;
+2. Get an instance of the class by DBManager *dbmanager = DBManager::GetInstance();
 3. There are two writes possible with this class,
-3a. dbmanager.writeMainData(rand(), "P1", "A", rand() % 5, rand() % 5, "[1,2,3,4]", "Y");
-3b. dbmanager.writeSRData("P1", rand() % 4, rand() % 40);
-4. These writes will add values to the two different tables in the database. 
+3a. dbmanager->writeMainData(5.5, "P1", "A", 3, 2,  "Y");
+3b. dbmanager->writeSRData("P1",1,12);
+3c.	dbmanager->writeForceData("Og81",12,1.24,15.55,12.44)
+4. These writes will add values to the three different tables in the database.
 
 A working example of this code is available at https://github.com/sandeepzgk/chai3d-experiments/tree/SQLIntegration_Test SQLIntegration_Test as a part of the chai3d-experiements repository.
 
@@ -41,11 +42,11 @@ Instructions adapted from : https://cppcodetips.wordpress.com/tag/including-sqli
 
 
 ### ADDITIONAL IMPORTANT NOTES ###
-* Ensure that you ***DO NOT*** instantiate more than 1 instance of DBManager. This does not have a singleton pattern and WILL cause some issues.
+* ##### The code now implements singleton pattern and you can get the instance anywhere #####
 * The filename for the db is test.db which can be changed to anything else
-* the initial startup of the code is delayed by two seconds to ensure that the db is ready with tables and everything is set to work
-* this uses detachable threads to write data to the db
-* the destructor will sleep the main thread to ensure that all data has been written to the tables
+* There is no delay in startup of the code
+* this uses detachable threads to write data to the db and only ONE write thread is available
+* Before exiting the application just check if isBusy function is returning true or false, if its busy please **DO NOT EXIT**
 * the write call should immediately return control to the main thread, as it has already spawn a write thread to the DB which will kill itself after execution.
 
 ### EXPLORING THE DB ###
