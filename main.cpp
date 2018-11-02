@@ -1,6 +1,4 @@
-#include <iostream>
 #include "DBManager.h"
-#include <time.h>
 #include <thread>
 
 int main() {
@@ -8,10 +6,9 @@ int main() {
     DBManager *dbmanager = DBManager::GetInstance();
 	for (int i = 0; i < 100; i++)
 	{
-		std::srand(time(0));
-		dbmanager->writeMainData(rand(), "P1", "A", rand() % 5, rand() % 5, "[1,2,3,4]", "Y");
-		std::srand(time(0));
-		dbmanager->writeSRData("P1",rand()%4,rand()%40);
+		dbmanager->writeMainData(5.5, "P1", "A", 3, 2,  "Y");
+		dbmanager->writeSRData("P1",1,12);
+		dbmanager->writeForceData("Og81",12,1.24,15.55,12.44);
 		std::cout<<i+1<<std::endl;
 	}
 	while(dbmanager->isBusy())
