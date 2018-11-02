@@ -55,7 +55,7 @@ void DBManager::createSRTable()
 {
 
 
-	char *sql = "CREATE TABLE  IF NOT EXISTS`SRDATA` (						\
+	std::string sql = "CREATE TABLE  IF NOT EXISTS`SRDATA` (						\
 				`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	\
 				`PID`	TEXT NOT NULL,										\
 				`LOC`	INTEGER NOT NULL,									\
@@ -66,16 +66,16 @@ void DBManager::createSRTable()
 
 void DBManager::sqlExecutor()
 {
-	/* Execute SQL statement */
-	//
 	while(1)
 	{
 		if (sql_executionQueue.size() == 0)
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		else
 		{
-			char *sql = sql_executionQueue.front();
-			rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+			std::string sqlString = sql_executionQueue.front();
+			char *csql = new char[sqlString.length() + 1];
+			strcpy(csql, sqlString.c_str());
+			rc = sqlite3_exec(db, csql, callback, 0, &zErrMsg);
 
 			if (rc != SQLITE_OK)
 			{
@@ -83,6 +83,7 @@ void DBManager::sqlExecutor()
 				sqlite3_free(zErrMsg);
 			}
 			sql_executionQueue.pop();
+			delete[] csql;
 		}
 	}
 }
@@ -90,7 +91,7 @@ void DBManager::sqlExecutor()
 void DBManager::createDataTable()
 {
 
-	char *sql = "CREATE TABLE IF NOT EXISTS `MAINDATA` (					\
+	std::string sql = "CREATE TABLE IF NOT EXISTS `MAINDATA` (					\
 				`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	\
 				`ELAPSED`	INTEGER NOT NULL,								\
 				`PID`	TEXT NOT NULL,										\
@@ -107,7 +108,7 @@ void DBManager::createDataTable()
 void DBManager::createForceTable()
 {
 
-	char *sql = "CREATE TABLE IF NOT EXISTS `FORCEDATA` (					\
+	std::string sql = "CREATE TABLE IF NOT EXISTS `FORCEDATA` (					\
 				`ID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,	\
 				`PID`	TEXT NOT NULL,										\
 				`S_TOUCHED`	INTEGER NOT NULL,								\
@@ -133,7 +134,8 @@ int DBManager::callback(void *NotUsed, int argc, char **argv, char **azColName)
 }
 
 
-void DBManager::writeMainData(float elapsed, char *pid, char *condition, int test_sp, int s_touched, char *confirm_press)
+void DBManager::writeMainData(float elapsed, std::string pid, std::string condition, int test_sp, int s_touched,
+							  std::string confirm_press)
 {
 	char elapsedBuffer[20];
 	char test_spBuffer[20];
@@ -148,51 +150,35 @@ void DBManager::writeMainData(float elapsed, char *pid, char *condition, int tes
 						sql.append("");		sql.append(test_spBuffer); 		sql.append(",");
 						sql.append("");		sql.append(s_touchedBuffer); 	sql.append(",");
 						sql.append("'");	sql.append(confirm_press); 		sql.append("');");
-	char *csql = new char[sql.length() + 1];
-	strcpy(csql, sql.c_str());
-	queueSQL(csql);
+
+	queueSQL(sql);
 
 }
 
 
 
-void DBManager::writeForceData(char *pid,int s_touched, float f_x, float f_y, float f_z)
+void DBManager::writeForceData(std::string pid, int s_touched, float f_x, float f_y, float f_z)
 {
-
 	char s_touchedBuffer[20];
 	char f_xBuffer[20];
 	char f_yBuffer[20];
 	char f_zBuffer[20];
-
-
-
 	sprintf(s_touchedBuffer, "%d", s_touched);
 	sprintf(f_xBuffer, "%.3f", roundf(f_x * 1000) / 1000);
 	sprintf(f_yBuffer, "%.3f", roundf(f_y * 1000) / 1000);
 	sprintf(f_zBuffer, "%.3f", roundf(f_z * 1000) / 1000);
-
-
-
-
-
-
-
-
-
 	std::string sql  =	"INSERT INTO `FORCEDATA`(`PID`,`S_TOUCHED`,`F_X`,`F_Y`,`F_Z`) VALUES (";
 	sql.append("'");	sql.append(pid); 				sql.append("',");
 	sql.append("");		sql.append(s_touchedBuffer); 	sql.append(",");
 	sql.append("'");	sql.append(f_xBuffer); 			sql.append("',");
 	sql.append("'");	sql.append(f_yBuffer); 			sql.append("',");
 	sql.append("'");	sql.append(f_zBuffer); 			sql.append("');");
-	char *csql = new char[sql.length() + 1];
-	strcpy(csql, sql.c_str());
-	queueSQL(csql);
+	queueSQL(sql);
 
 }
 
 
-void DBManager::writeSRData(char *pid, int location, int cal_val)
+void DBManager::writeSRData(std::string pid, int location, int cal_val)
 {
 	char locationBuffer[20];
 	char cal_valBuffer[20];
@@ -202,13 +188,10 @@ void DBManager::writeSRData(char *pid, int location, int cal_val)
 	sql.append("'");	sql.append(pid); 				sql.append("',");
 	sql.append("");		sql.append(locationBuffer); 	sql.append(",");
 	sql.append("");	sql.append(cal_valBuffer); 			sql.append(");");
-	char *csql = new char[sql.length() + 1];
-	strcpy(csql, sql.c_str());
-	queueSQL(csql);
-
+	queueSQL(sql);
 }
 
-void DBManager::queueSQL(char *sql)
+void DBManager::queueSQL(std::string sql)
 {
 	sql_executionQueue.push(sql);
 }
