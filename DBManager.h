@@ -17,22 +17,20 @@ private:
 	int rc;
 	char *zErrMsg = 0;
 	int connect();
-	int disconnect();
 	void createSRTable();
 	void createDataTable();
 	static int callback(void *NotUsed, int argc, char **argv, char **azColName);
-	void sqlExecutor(char *sql,bool usedNew);
-	void detachableExecutor(char *sql,bool usedNew);
-	int threadExecuting = 0;
+	void sqlExecutor();
+	void queueSQL(char *sql, bool usedNew);
 	std::queue<char*> sql_executionQueue;
 	DBManager();
 	static DBManager* pSingleton;		// singleton instance
 
 public:
-	~DBManager();
 	static DBManager* GetInstance();
 	void writeMainData(float elapsed, char *pid, char *condition, int test_sp, int s_touched, char *forces, char *confirm_press);
 	void writeSRData(char *pid, int location, int cal_val);
+	bool isBusy();
 
 
 };

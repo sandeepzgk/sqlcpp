@@ -1,6 +1,7 @@
 #include <iostream>
 #include "DBManager.h"
 #include <time.h>
+#include <thread>
 
 int main() {
 
@@ -13,6 +14,10 @@ int main() {
 		dbmanager->writeSRData("P1",rand()%4,rand()%40);
 		std::cout<<i+1<<std::endl;
 	}
-
+	while(dbmanager->isBusy())
+	{
+		std::cout<<"DBManager is busy"<<std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
     return 0;
 }
